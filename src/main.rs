@@ -1,5 +1,6 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use serde::Deserialize;
+use std::env;
 
 #[derive(Deserialize)]
 struct QueryParams {
@@ -31,6 +32,11 @@ async fn mannual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let port = env::var("PORT")
+        .unwrap_or_else(|_| "8000".to_string())
+        .parse::<u16>()
+        .expect("PORT must be a number");
+
     HttpServer::new(|| {
         App::new()
             .service(hello)
@@ -38,7 +44,7 @@ async fn main() -> std::io::Result<()> {
             .service(params)
             .route("/hey", web::get().to(mannual_hello))
     })
-    .bind(("0.0.0.0", 8000))?
+    .bind(("0.0.0.0", port))?
     .run()
     .await
 }
